@@ -1,1 +1,1 @@
-Node.js based Layer 4 Load-balancer with randomized consensus
+Node.js based Layer 4 DNS Load-balancer with randomized consensus
