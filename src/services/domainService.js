@@ -1,3 +1,4 @@
+/* eslint-disable no-await-in-loop */
 /* eslint-disable prefer-const */
 /* eslint-disable no-unused-vars */
 /* eslint-disable no-restricted-syntax */
@@ -26,16 +27,51 @@ async function getApplicationIP(appName) {
   }
 }
 /**
+ * [getApplicationSpecs Retrieves app specifications]
+ * @param {string} appName [description]
+ * @return {Array}         [description]
+ */
+async function getApplicationSpecs(appName) {
+  try {
+    const fluxnodeList = await axios.get(`https://api.runonflux.io/apps/appspecifications/${appName}`, { timeout: 13456 });
+    if (fluxnodeList.data.status === 'success') {
+      return fluxnodeList.data.data || [];
+    }
+    return [];
+  } catch (e) {
+    log.error(e);
+    return [];
+  }
+}
+async function updateIPAddresses() {
+  try {
+    for (let i = 0; i < config.apps.length; i += 1) {
+      const IPadresses = await getApplicationIP(config.apps[i].name);
+      balancers[i].setAddresses(IPadresses);
+    }
+  } catch (e) {
+    log.error(e);
+  }
+  setTimeout(() => {
+    updateIPAddresses();
+  }, 60 * 1000);
+}
+/**
  * [start description]
  */
 async function start() {
   try {
     for (let i = 0; i < config.apps.length; i += 1) {
-      // eslint-disable-next-line no-await-in-loop
       const IPadresses = await getApplicationIP(config.apps[i].name);
+      const Specifications = await getApplicationSpecs(config.apps[i].name);
+      let addressesArray = [];
+      for (let j = 0; j < IPadresses.length; j += 1) {
+        addressesArray.push(IPadresses[j].ip);
+      }
+      console.log(Specifications.ports[0]);
       const options = {
-        addresses: IPadresses,
-        port: config.apps[i].port,
+        addresses: addressesArray,
+        port: Specifications.ports[0],
         consensusMin: config.apps[i].consensusMin,
         consensusTotal: config.apps[i].consensusTotal,
         ipv6: false,
@@ -47,13 +83,20 @@ async function start() {
       };
       // This is the function that creates the loadbalancer, each connection is handled internally
       let balancer = UdpBalancer.createServer(options);
+      balancer.setAddresses(IPadresses);
       balancer.on('listening', (details) => {
         console.log(`loadbalancer ready on ${details.server.family}  ${details.server.address}:${details.server.port}`);
         console.log(`traffic is forwarded to ${details.target.family}  ${details.target.address}:${details.target.port}`);
       });
       balancers.push(balancer);
+      setTimeout(() => {
+        updateIPAddresses();
+      }, 5 * 1000);
     }
   } catch (e) {
     log.error(e);
   }
 }
+module.exports = {
+  start,
+};

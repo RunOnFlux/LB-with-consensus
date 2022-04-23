@@ -71,9 +71,21 @@ class UdpBalancer {
   }
 
   /**
-     * [getNextTarget description]
-     * @return {[type]}        [description]
-     */
+   * [setAddresses description]
+   * @return {[type]}        [description]
+   */
+  setAddresses(IPlist) {
+    this.details.target.address = [];
+    this.details.target.currentTarget = 0;
+    for (let i = 0; i < IPlist.length; i += 1) {
+      this.details.target.address.push(IPlist[1].ip);
+    }
+  }
+
+  /**
+   * [getNextTarget description]
+   * @return {[type]}        [description]
+   */
   getNextTarget() {
     // eslint-disable-next-line no-plusplus
     this.details.target.currentTarget++;
