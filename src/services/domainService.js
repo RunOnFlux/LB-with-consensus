@@ -43,6 +43,9 @@ async function getApplicationSpecs(appName) {
     return [];
   }
 }
+/**
+ * [updateIPAddresses description]
+ */
 async function updateIPAddresses() {
   try {
     for (let i = 0; i < config.apps.length; i += 1) {
@@ -68,30 +71,33 @@ async function start() {
       for (let j = 0; j < IPadresses.length; j += 1) {
         addressesArray.push(IPadresses[j].ip);
       }
-      console.log(Specifications.ports[0]);
-      const options = {
-        addresses: addressesArray,
-        port: Specifications.ports[0],
-        consensusMin: config.apps[i].consensusMin,
-        consensusTotal: config.apps[i].consensusTotal,
-        ipv6: false,
-        localaddress: '127.0.0.1',
-        localport: config.apps[i].port,
-        localipv6: false,
-        proxyaddress: '0.0.0.0',
-        timeOutTime: config.apps[i].timeout,
-      };
-      // This is the function that creates the loadbalancer, each connection is handled internally
-      let balancer = UdpBalancer.createServer(options);
-      balancer.setAddresses(IPadresses);
-      balancer.on('listening', (details) => {
-        console.log(`loadbalancer ready on ${details.server.family}  ${details.server.address}:${details.server.port}`);
-        console.log(`traffic is forwarded to ${details.target.family}  ${details.target.address}:${details.target.port}`);
-      });
-      balancers.push(balancer);
-      setTimeout(() => {
-        updateIPAddresses();
-      }, 5 * 1000);
+      if (Specifications.length) {
+        const options = {
+          addresses: addressesArray,
+          port: Specifications.ports[0],
+          consensusMin: config.apps[i].consensusMin,
+          consensusTotal: config.apps[i].consensusTotal,
+          ipv6: false,
+          localaddress: '127.0.0.1',
+          localport: config.apps[i].port,
+          localipv6: false,
+          proxyaddress: '0.0.0.0',
+          timeOutTime: config.apps[i].timeout,
+        };
+        // This is the function that creates the loadbalancer, each connection is handled internally
+        let balancer = UdpBalancer.createServer(options);
+        balancer.setAddresses(IPadresses);
+        balancer.on('listening', (details) => {
+          console.log(`loadbalancer ready on ${details.server.family}  ${details.server.address}:${details.server.port}`);
+          console.log(`traffic is forwarded to ${details.target.family}  ${details.target.address}:${details.target.port}`);
+        });
+        balancers.push(balancer);
+        setTimeout(() => {
+          updateIPAddresses();
+        }, 5 * 1000);
+      } else {
+        console.log('No app found.');
+      }
     }
   } catch (e) {
     log.error(e);
