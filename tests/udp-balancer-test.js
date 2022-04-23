@@ -1,4 +1,4 @@
-const proxy = require('../lib/udp-balancer');
+const proxy = require('../src/lib/udp-balancer');
 
 const options = {
   addresses: ['1.1.1.1', '8.8.8.8', '9.9.9.9', '149.112.112.112', '208.67.222.222'],
@@ -18,7 +18,6 @@ const server = proxy.createServer(options);
 
 // this should be obvious
 server.on('listening', (details) => {
-  console.log('DNS - IPv4 to IPv6 proxy }>=<{ by: ok 2012');
   console.log(`udp-proxy-server ready on ${details.server.family}  ${details.server.address}:${details.server.port}`);
   console.log(`traffic is forwarded to ${details.target.family}  ${details.target.address}:${details.target.port}`);
 });

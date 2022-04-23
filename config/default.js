@@ -1,13 +1,12 @@
 module.exports = {
-    apps:[
-        {
-            name:"pdns",
-            port:50,
-            ipList:[],
-            protocol:"udp",
-            consensusNumber:3,
-            loadbalancingMethod:"rr",
-            timeout:50
-        }
-    ]    
-}
+  apps: [
+    {
+      name: 'pdns',
+      port: 53,
+      protocol: 'udp',
+      consensusMin: 2,
+      consensusTotal: 3,
+      timeout: 5000,
+    },
+  ],
+};
