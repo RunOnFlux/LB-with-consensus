@@ -1,8 +1,9 @@
 module.exports = {
   apps: [
     {
-      name: 'pdns',
+      appName: 'pdns',
       port: 53,
+      containerPort: 30053,
       protocol: 'udp',
       consensusMin: 2,
       consensusTotal: 3,

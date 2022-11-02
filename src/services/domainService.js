@@ -49,7 +49,7 @@ async function getApplicationSpecs(appName) {
 async function updateIPAddresses() {
   try {
     for (let i = 0; i < config.apps.length; i += 1) {
-      const IPadresses = await getApplicationIP(config.apps[i].name);
+      const IPadresses = await getApplicationIP(config.apps[i].appName);
       balancers[i].setAddresses(IPadresses);
     }
   } catch (e) {
@@ -65,8 +65,8 @@ async function updateIPAddresses() {
 async function start() {
   try {
     for (let i = 0; i < config.apps.length; i += 1) {
-      const IPadresses = await getApplicationIP(config.apps[i].name);
-      const Specifications = await getApplicationSpecs(config.apps[i].name);
+      const IPadresses = await getApplicationIP(config.apps[i].appName);
+      const Specifications = await getApplicationSpecs(config.apps[i].appName);
       let addressesArray = [];
       for (let j = 0; j < IPadresses.length; j += 1) {
         addressesArray.push(IPadresses[j].ip);
@@ -74,7 +74,7 @@ async function start() {
       if (Specifications.length) {
         const options = {
           addresses: addressesArray,
-          port: Specifications.ports[0],
+          port: config.apps[i].containerPort,
           consensusMin: config.apps[i].consensusMin,
           consensusTotal: config.apps[i].consensusTotal,
           ipv6: false,
