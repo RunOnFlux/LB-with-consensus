@@ -69,6 +69,7 @@ async function start() {
       const Specifications = await getApplicationSpecs(config.apps[i].appName);
       let addressesArray = [];
       for (let j = 0; j < IPadresses.length; j += 1) {
+        if (IPadresses[j].ip.includes(':')) IPadresses[j].ip = IPadresses[j].ip.split(':')[0];
         addressesArray.push(IPadresses[j].ip);
       }
       if (Specifications.length) {
@@ -78,7 +79,7 @@ async function start() {
           consensusMin: config.apps[i].consensusMin,
           consensusTotal: config.apps[i].consensusTotal,
           ipv6: false,
-          localaddress: '127.0.0.1',
+          localaddress: config.loadBalancerAddress,
           localport: config.apps[i].port,
           localipv6: false,
           proxyaddress: '0.0.0.0',

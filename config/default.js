@@ -10,4 +10,5 @@ module.exports = {
       timeout: 5000,
     },
   ],
+  loadBalancerAddress: '127.0.0.1',
 };
